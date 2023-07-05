@@ -1,2 +1,2 @@
 #!/bin/bash
-find "$(dirname "$(pwd)")" -name '*.html' -type f -exec cp -u {} "$(dirname "$(pwd)")" \
+p="$(dirname "$(pwd)")"; c=.; for f in "$c"/*.html; do d="$p/$(basename "$f")"; [ ! -f "$d" ] || [ "$f" -nt "$d" ] && cp "$f" "$p" && echo "Copied $(basename "$f") to parent directory."; done; echo "Finished copying HTML files."
