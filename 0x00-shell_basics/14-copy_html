@@ -1,2 +1,2 @@
 #!/bin/bash
-find . -maxdepth 1 -type f -name "*.html" -newer ../ -exec cp -n {} ../ \; -o -exec ls -l {} \;
+find . -maxdepth 1 -type f -name "*.html" -newer ../ -exec bash -c 'if [ ! -e "../$(basename "$0")" ] || [ "$0" -nt "../$(basename "$0")" ]; then cp "$0" "../"; else ls -l "$0"; fi' {} \;
