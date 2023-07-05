@@ -1,2 +1,2 @@
 #!/bin/bash
-find "$(dirname "$(pwd)")" -name '*.html' -type f -exec cp -u {} "$(dirname "$(pwd)")" \;
+find "$(dirname "$(pwd)")" -name '*.html' -type f -exec cp -u {} "$(dirname "$(pwd)")" \
