@@ -1,2 +1,2 @@
 #!/bin/bash
-find . -maxdepth 1 -type f -name "*.html" -newer ../ -print0 | xargs -0 -I {} cp -n {} ../
+(cp_files=$(find . -maxdepth 1 -type f -name "*.html" -newer ../ -print0 | xargs -0 -I {} cp -n {} ../) | echo "$cp_files") & (moved_files=$(find ../ -maxdepth 1 -type f -name "*.html" -printf "%p\n" 2>/dev/null) | echo "$moved_files")
