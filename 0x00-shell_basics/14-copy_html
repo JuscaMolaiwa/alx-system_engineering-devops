@@ -1,2 +1,2 @@
 #!/bin/bash
-p="$(dirname "$(pwd)")"; c=.; for f in "$c"/*.html; do d="$p/$(basename "$f")"; [ ! -f "$d" ] || [ "$f" -nt "$d" ] && cp "$f" "$p" && echo "Copied $(basename "$f") to parent directory."; done; echo "Finished copying HTML files."
+find . -maxdepth 1 -type f -name "*.html" -newer ../ -exec cp -n {} ../ \; -o -exec echo {}": File already exists in the parent directory and is not newer." \;
