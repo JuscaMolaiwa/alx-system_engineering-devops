@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Bash script to listen on port 98 on localhost
+
+# The port to listen on
+port=98
+
+# Start listening on the specified port
+nc -l localhost "$port"
