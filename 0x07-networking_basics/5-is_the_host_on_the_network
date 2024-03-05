@@ -1,10 +1,14 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 # This checks if an IP address is provided as an argument
 
-if [ $# -ne 1 ]; then
-  echo "Usage: $0 {IP_ADDRESS}"
-  exit 1
+# ip variable
+target_ip="${1}"
+
+# Get the filename of the script
+fn=$(basename "${BASH_SOURCE[@]}")
+
+if ! [ "$target_ip" ]; then
+  echo "Usage: ${fn} {IP_ADDRESS}"
+else
+  ping -c 5 "${target_ip}"
 fi
-ip_address=$1
-echo "Pinging $ip_address..."
-ping -c 5 $ip_address
