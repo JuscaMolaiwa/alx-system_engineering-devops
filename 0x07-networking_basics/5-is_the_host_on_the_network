@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # This checks if an IP address is provided as an argument
 
-target_ip="${1}"
-fn=$(basename "${BASH_SOURCE[@]}")
-
-if ! [ "$target_ip" ]; then
-  echo "Usage: ${fn} {IP_ADDRESS}"
-else
-  ping -c 5 "${target_ip}"
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 {IP_ADDRESS}"
+    exit 1
 fi
+
+# Extract the IP address from the argument
+ip_address=$1
+
+# Ping the IP address 5 times
+ping -c 5 "$ip_address"
