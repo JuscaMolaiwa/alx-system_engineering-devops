@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# The script to fix the server apache
+sudo service apache2 start
