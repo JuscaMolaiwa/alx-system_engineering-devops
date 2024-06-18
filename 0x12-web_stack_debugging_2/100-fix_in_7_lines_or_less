@@ -3,15 +3,8 @@
 
 # Update user in nginx.conf
 sed -i "s/#user www-data/user nginx/" /etc/nginx/nginx.conf
-
 # Update listen directive in default site config
 sed -i -E 's/(listen\s+)80 /\18080 /' /etc/nginx/sites-available/default
-
-# adjusting file permissions
 # chmod 644 /etc/nginx/nginx.conf
-
-# Stop Apache if running
 pkill apache2
-
-# Restart nginx service )
 sudo -u nginx service nginx restart
