@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# This script ensures Nginx is running and listening on port 80 of all active IPv4 IPs.
+
+# 1. Check and start Nginx
+if ! systemctl is-active --quiet nginx; then
+    systemctl start nginx
+fi
+
+# 2. Identify conflicting services (using lsof as fallback for systems without netstat)
+conflicting_pids=$(lsof -i :80 -t)
+if [ -n "$conflicting_pids" ]; then
+    echo "Other processes using port 80 (PIDs: $conflicting_pids). Stopping..."
+    kill $conflicting_pids  # Assuming you have permission to stop them
+fi
+
+# 3. Ensure Nginx is bound to all active IPv4 addresses
+active_ipv4s=$(hostname -I | awk '{for(i=1;i<=NF;i++)if($i~/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/)print $i}')
+for ip in $active_ipv4s; do
+    if ! (lsof -i @$ip:80 | grep -q nginx); then
+        echo "Binding Nginx to $ip:80"
+        sed -i "/listen\s/ s/;/ $ip:80;/" /etc/nginx/sites-enabled/*  # Modify config
+        systemctl reload nginx
+    fi
+done
