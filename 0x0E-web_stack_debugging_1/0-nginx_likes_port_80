@@ -1,24 +1,29 @@
 #!/usr/bin/env bash
-# This script ensures Nginx is running and listening on port 80 of all active IPv4 IPs.
+# This script ensures Nginx listens on port 80, resolving conflicts and checking for errors.
 
-# 1. Check and start Nginx
-if ! systemctl is-active --quiet nginx; then
-    systemctl start nginx
-fi
-
-# 2. Identify conflicting services (using lsof as fallback for systems without netstat)
+# 1. Stop conflicting processes on port 80
 conflicting_pids=$(lsof -i :80 -t)
 if [ -n "$conflicting_pids" ]; then
     echo "Other processes using port 80 (PIDs: $conflicting_pids). Stopping..."
     kill $conflicting_pids  # Assuming you have permission to stop them
 fi
 
-# 3. Ensure Nginx is bound to all active IPv4 addresses
-active_ipv4s=$(hostname -I | awk '{for(i=1;i<=NF;i++)if($i~/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/)print $i}')
-for ip in $active_ipv4s; do
-    if ! (lsof -i @$ip:80 | grep -q nginx); then
-        echo "Binding Nginx to $ip:80"
-        sed -i "/listen\s/ s/;/ $ip:80;/" /etc/nginx/sites-enabled/*  # Modify config
-        systemctl reload nginx
-    fi
-done
+# 2. Update Nginx config to listen on port 80
+sed -i 's/listen\s*[^;]*;/listen 80;/' /etc/nginx/sites-enabled/* 
+
+# 3. Check Nginx configuration for errors
+if ! nginx -t; then
+    echo "Error: Nginx configuration test failed. Fix configuration errors and try again."
+    exit 1
+fi
+
+# 4. Restart Nginx service
+systemctl restart nginx
+
+# 5. Verify Nginx is listening on port 80
+if ss -tulpn | grep -q ":80 "; then 
+    echo "Nginx is successfully listening on port 80."
+else
+    echo "Error: Nginx failed to listen on port 80. Check the logs for details."
+    exit 1
+fi
