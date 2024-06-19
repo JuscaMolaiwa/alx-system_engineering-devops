@@ -10,7 +10,6 @@ It then prints the tasks completed by the employee.
 import requests
 import sys
 
-
 if __name__ == "__main__":
     # Base URL for the JSONPlaceholder API
     url = "https://jsonplaceholder.typicode.com/"
@@ -19,14 +18,17 @@ if __name__ == "__main__":
     employee_id = sys.argv[1]
     user = requests.get(url + "users/{}".format(employee_id)).json()
 
+    # Output the employee's name in the required format
+    print("Employee Name: {}".format(user.get("name")))
+
     # Getting the to-do list for the employee using the provided employee ID
     params = {"userId": employee_id}
-    todos = requests.get(url + "todos", params).json()
+    todos = requests.get(url + "todos", params=params).json()
 
-    # Filtering the  completed tasks and counting them
+    # Filtering the completed tasks and counting them
     completed = [t.get("title") for t in todos if t.get("completed") is True]
 
-    # Printing the employee's name and the number of the completed tasks
+    # Printing the number of the completed tasks
     print("Employee {} is done with tasks({}/{}):".format(
         user.get("name"), len(completed), len(todos)))
 
