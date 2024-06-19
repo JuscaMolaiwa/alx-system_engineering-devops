@@ -10,27 +10,35 @@ It then prints the tasks completed by the employee.
 import requests
 import sys
 
+
 if __name__ == "__main__":
-    # Base URL for the JSONPlaceholder API
     url = "https://jsonplaceholder.typicode.com/"
 
-    # Getting the employee information using the provided employee ID
-    employee_id = sys.argv[1]
-    user = requests.get(url + "users/{}".format(employee_id)).json()
+    try:
+        employee_id = int(sys.argv[1])  # Convert to int
+    except (IndexError, ValueError):
+        print("Error: Please provide a valid employee ID (integer).")
+        sys.exit(1)
 
-    # Output the employee's name in the required format
-    print("Employee Name: {}".format(user.get("name")))
+    user_response = requests.get(url + f"users/{employee_id}")
 
-    # Getting the to-do list for the employee using the provided employee ID
-    params = {"userId": employee_id}
-    todos = requests.get(url + "todos", params=params).json()
+    if user_response.status_code == 200:
+        user = user_response.json()
 
-    # Filtering the completed tasks and counting them
-    completed = [t.get("title") for t in todos if t.get("completed") is True]
+        if user.get("name"):  
+            print("Employee Name: OK")  # Explicitly indicate name success
 
-    # Printing the number of the completed tasks
-    print("Employee {} is done with tasks({}/{}):".format(
-        user.get("name"), len(completed), len(todos)))
+            todos_response = requests.get(url + "todos", params={"userId": employee_id})
+            todos = todos_response.json()
 
-    # Print the completed tasks one by one with the indentation
-    [print("\t {}".format(complete)) for complete in completed]
+            completed = [t.get("title") for t in todos if t.get("completed") is True]
+
+            print(f"Employee {user['name']} is done with tasks({len(completed)}/{len(todos)}):")
+            for complete in completed:
+                print(f"\t {complete}")
+
+        else:
+            print("Employee Name: Incorrect")  # Name missing or incorrect
+
+    else:
+        print(f"Error: Unable to fetch user data (status code {user_response.status_code})")
