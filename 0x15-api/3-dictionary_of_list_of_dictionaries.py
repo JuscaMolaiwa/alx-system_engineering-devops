@@ -9,16 +9,17 @@ from the JSONPlaceholder API. It then exports the data to a JSON file.
 import json
 import requests
 
+
 def fetch_all_todo_lists():
     # Base URL for the JSONPlaceholder API
     url = "https://jsonplaceholder.typicode.com/"
-    
+
     # Fetch all users
     users = requests.get(url + "users").json()
-    
+
     # Fetch all todos
     todos = requests.get(url + "todos").json()
-    
+
     # Organize todos by user
     todo_dict = {}
     for user in users:
@@ -32,10 +33,11 @@ def fetch_all_todo_lists():
                     "task": todo.get("title"),
                     "completed": todo.get("completed")
                 })
-    
+
     # Write to JSON file
     with open("todo_all_employees.json", "w") as json_file:
         json.dump(todo_dict, json_file)
+
 
 if __name__ == "__main__":
     fetch_all_todo_lists()
