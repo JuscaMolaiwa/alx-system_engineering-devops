@@ -1,17 +1,50 @@
 #!/usr/bin/python3
-"""Module for task 0"""
+"""
+Script that queries subscribers on a given Reddit subreddit.
+"""
 
+import requests
 
 def number_of_subscribers(subreddit):
-    """Queries the Reddit API and returns the number of subscribers
-    to the subreddit"""
-    import requests
+    """
+    Queries the Reddit API and returns the number of subscribers for a given subreddit.
 
-    sub_info = requests.get("https://www.reddit.com/r/{}/about.json"
-                            .format(subreddit),
-                            headers={"User-Agent": "My-User-Agent (by /u/Less_Account_9562)"},
-                            allow_redirects=False)
-    if sub_info.status_code >= 300:
+    Args:
+    - subreddit (str): The name of the subreddit (without '/r/').
+
+    Returns:
+    - int: Number of subscribers. Returns 0 if the subreddit is invalid or not found.
+    """
+    # User-Agent header with your application details
+    user_agent = "python:reddit_subscriber_counter:v1.0.0 (by /u/your_reddit_username)"
+
+    # Construct the URL for the subreddit's about.json
+    url = f"https://www.reddit.com/r/{subreddit}/about.json"
+
+    # Headers with User-Agent
+    headers = {
+        "User-Agent": "python:reddit_subscriber_counter:v1.0.0 (by /u/Less_Account_9562)"
+    }
+
+    try:
+        # Send GET request to the URL
+        response = requests.get(url, headers=headers, allow_redirects=False)
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse JSON response
+            data = response.json()
+            # Extract number of subscribers
+            subscribers = data['data']['subscribers']
+            return subscribers
+        elif response.status_code == 404:
+            # Subreddit not found
+            return 0
+        else:
+            # Handle other errors
+            print(f"Error: {response.status_code} - {response.reason}")
+            return 0
+
+    except requests.RequestException as e:
+        print(f"Request failed: {e}")
         return 0
-
-    return sub_info.json().get("data").get("subscribers")
