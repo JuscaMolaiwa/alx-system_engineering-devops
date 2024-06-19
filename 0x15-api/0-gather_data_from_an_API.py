@@ -1,37 +1,52 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+import requests
+import sys
 
-"""
-Python script that, using a REST API, for a given employee ID,
-returns information about his/her TODO list progress.
-"""
+API_URL = "https://jsonplaceholder.typicode.com"
 
-from requests import get
-from sys import argv
 
+def get_employee_todo_progress(employee_id):
+    """Fetches and displays an employee's to-do list progress.
+
+    Args:
+        employee_id (int): The ID of the employee.
+    """
+    try:
+        # Fetch user information
+        user_response = requests.get(f"{API_URL}/users/{employee_id}")
+        user_response.raise_for_status()  # Raise an exception for HTTP errors
+        user = user_response.json()
+        employee_name = user["name"]
+
+        # Fetch to-do list
+        todos_response = requests.get(f"{API_URL}/todos", params={"userId": employee_id})
+        todos_response.raise_for_status()
+        todos = todos_response.json()
+
+        completed_tasks = [task["title"] for task in todos if task["completed"]]
+
+        # Display progress summary
+        print(f"Employee {employee_name} is done with tasks({len(completed_tasks)}/{len(todos)}):")
+
+        # Display completed task titles
+        for task_title in completed_tasks:
+            print(f"\t {task_title}")
+        
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data: {e}")
+    except KeyError as e:
+        print(f"Unexpected data format: {e}")
 
 if __name__ == "__main__":
-    response = get('https://jsonplaceholder.typicode.com/todos/')
-    data = response.json()
-    completed = 0
-    total = 0
-    tasks = []
-    response2 = get('https://jsonplaceholder.typicode.com/users')
-    data2 = response2.json()
+    if len(sys.argv) < 2:
+        print("Usage: ./script.py <employee_id>")
+        sys.exit(1)
 
-    for i in data2:
-        if i.get('id') == int(argv[1]):
-            employee = i.get('name')
+    try:
+        employee_id = int(sys.argv[1])
+    except ValueError:
+        print("Invalid employee ID. Please provide an integer.")
+        sys.exit(1)
 
-    for i in data:
-        if i.get('userId') == int(argv[1]):
-            total += 1
-
-            if i.get('completed') is True:
-                completed += 1
-                tasks.append(i.get('title'))
-
-    print("Employee {} is done with tasks({}/{}):".format(employee, completed,
-                                                          total))
-
-    for i in tasks:
-        print("\t {}".format(i))
+    get_employee_todo_progress(employee_id)
