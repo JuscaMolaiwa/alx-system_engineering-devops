@@ -15,9 +15,6 @@ def number_of_subscribers(subreddit):
     Returns:
     - int: Number of subscribers. Returns 0 if the subreddit is invalid or not found.
     """
-    # User-Agent header with your application details
-    user_agent = "python:reddit_subscriber_counter:v1.0.0 (by /u/your_reddit_username)"
-
     # Construct the URL for the subreddit's about.json
     url = f"https://www.reddit.com/r/{subreddit}/about.json"
 
