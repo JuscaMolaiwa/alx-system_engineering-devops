@@ -1,82 +1,88 @@
 #!/usr/bin/python3
 """
-Script to query a list of all hot posts on a given Reddit subreddit.
+Script to query hot articles on Reddit and count specific keywords in titles.
 """
 
 import requests
 
 
-def recurse(subreddit, hot_list=[], after="", count=0):
+def count_words(subreddit, word_list, after="", word_count=None):
     """
-    Recursively retrieves a list of titles of all hot posts
-    on a given subreddit.
+    Recursively retrieves hot post titles from a given subreddit
+    and counts occurrences of specified keywords.
 
     Args:
         subreddit (str): The name of the subreddit.
-        hot_list (list, optional): List to store the post titles.
-                                    Default is an empty list.
-        after (str, optional): Token used for pagination.
-                                Default is an empty string.
-        count (int, optional): Current count of retrieved posts. Default is 0.
+        word_list (list): List of keywords to count in titles.
+        after (str, optional): Token for pagination. Default is "".
+        word_count (dict, optional): Dictionary to store word counts. Default is None.
 
     Returns:
-        list: A list of post titles from the hot section of the subreddit,
-              or None if the subreddit is invalid.
+        None: Prints the sorted count of words.
     """
+    # Initialize word_count if it's None
+    if word_count is None:
+        word_count = {}
+
+    # Normalize all words in word_list to lowercase
+    word_list = [word.lower() for word in word_list]
+
     # Construct the URL for the subreddit's hot posts in JSON format
     url = f"https://www.reddit.com/r/{subreddit}/hot/.json"
-
-    # Define headers for the HTTP request, including User-Agent
+    
+    # Define headers for the HTTP request
     headers = {
-        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
+        "User-Agent": "Mozilla/5.0"
     }
-
+    
     # Define parameters for the request, including pagination and limit
     params = {
         "after": after,
-        "count": count,
         "limit": 100
     }
 
+    # Send a GET request to the subreddit's hot posts page
     try:
-        # Send a GET request to the subreddit's hot posts page
         response = requests.get(url, headers=headers, params=params,
                                 allow_redirects=False)
 
-        # Check if the response status code is 404 (not found)
+        # Check if the response status code indicates a not-found error (404)
         if response.status_code == 404:
-            return None
+            return
 
         # Ensure the content type is JSON
         if "application/json" not in response.headers.get("Content-Type", ""):
-            return None
+            return
 
         # Parse the JSON response and extract relevant data
-        data = response.json().get("data")
-        if data is None:
-            return None
-
-        # Update the pagination token and post count
+        data = response.json().get("data", {})
         after = data.get("after")
-        count += data.get("dist", 0)
 
-        # Append post titles to the hot_list
-        for child in data.get("children", []):
-            hot_list.append(child.get("data", {}).get("title"))
+        # Get the titles of all hot posts
+        titles = [child.get("data", {}).get("title", "").lower() for child in data.get("children", [])]
+
+        # Count the occurrences of each keyword in the titles
+        for title in titles:
+            # Split the title into words, ignoring punctuation
+            words_in_title = title.split()
+
+            # Count occurrences of each word in word_list
+            for word in word_list:
+                word_count[word] = word_count.get(word, 0) + words_in_title.count(word)
 
         # Recursively call the function if there are more posts to retrieve
         if after:
-            return recurse(subreddit, hot_list, after, count)
+            return count_words(subreddit, word_list, after, word_count)
 
-        # Return the final list of hot post titles
-        return hot_list
+        # Sort the word_count dictionary by count (descending) and then alphabetically by word (ascending)
+        sorted_word_count = sorted(word_count.items(), key=lambda kv: (-kv[1], kv[0]))
+
+        # Print the sorted word counts, skipping words with a count of 0
+        for word, count in sorted_word_count:
+            if count > 0:
+                print(f"{word}: {count}")
 
     except requests.exceptions.RequestException as e:
-        # Handle any requests-related errors (e.g., network issues)
-        print(f"Request error: {e}")
-        return None
+        # Handle any requests-related errors
+        return
 
-    except ValueError as e:
-        # Handle errors in JSON decoding
-        print(f"JSON decoding error: {e}")
-        return None
