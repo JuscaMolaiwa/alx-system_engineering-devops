@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Script to query hot articles on Reddit and count specific keywords in titles."""
+"""Script to query hot articles on Reddit."""
 
 import requests
 
@@ -64,4 +64,5 @@ def count_words(subreddit, word_list, after="", word_count=None):
 
     except requests.exceptions.RequestException:
         return
+
 
