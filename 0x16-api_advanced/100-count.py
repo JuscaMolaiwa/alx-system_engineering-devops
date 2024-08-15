@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 """Script to query hot articles on Reddit."""
 import requests
+
+
 def count_words(subreddit, word_list, after="", word_count=None):
     """Recursively retrieves hot post titles from a given subreddit."""
     # Initialize word_count if it's None
