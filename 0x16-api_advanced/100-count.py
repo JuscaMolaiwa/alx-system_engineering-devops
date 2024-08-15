@@ -20,10 +20,11 @@ def recurse(subreddit, hot_list=[], after="", count=0):
         count (int, optional): Current count of retrieved posts. Default is 0.
 
     Returns:
-        list: A list of post titles from the hot section of the subreddit.
+        list: A list of post titles from the hot section of the subreddit,
+              or None if the subreddit is invalid.
     """
     # Construct the URL for the subreddit's hot posts in JSON format
-    url = "https://www.reddit.com/r/{}/hot/.json".format(subreddit)
+    url = f"https://www.reddit.com/r/{subreddit}/hot/.json"
 
     # Define headers for the HTTP request, including User-Agent
     headers = {
@@ -42,30 +43,40 @@ def recurse(subreddit, hot_list=[], after="", count=0):
         response = requests.get(url, headers=headers, params=params,
                                 allow_redirects=False)
 
-        # Check if the response status code indicates a not-found error (404)
+        # Check if the response status code is 404 (not found)
         if response.status_code == 404:
             return None
-        # Check for other non-success status codes
-        if response.status_code != 200:
+
+        # Ensure the content type is JSON
+        if "application/json" not in response.headers.get("Content-Type", ""):
             return None
 
         # Parse the JSON response and extract relevant data
-        results = response.json().get("data", {})
-        after = results.get("after")
-        count += results.get("dist", 0)
+        data = response.json().get("data")
+        if data is None:
+            return None
+
+        # Update the pagination token and post count
+        after = data.get("after")
+        count += data.get("dist", 0)
 
         # Append post titles to the hot_list
-        for c in results.get("children", []):
-            hot_list.append(c.get("data").get("title"))
+        for child in data.get("children", []):
+            hot_list.append(child.get("data", {}).get("title"))
 
-        # If there are more posts to retrieve, recursively call the function
+        # Recursively call the function if there are more posts to retrieve
         if after:
             return recurse(subreddit, hot_list, after, count)
 
         # Return the final list of hot post titles
         return hot_list
 
-    except Exception as e:
-        # Handle any exceptions, such as network errors or JSON parsing issues
-        print(f"An error occurred: {e}")
+    except requests.exceptions.RequestException as e:
+        # Handle any requests-related errors (e.g., network issues)
+        print(f"Request error: {e}")
+        return None
+
+    except ValueError as e:
+        # Handle errors in JSON decoding
+        print(f"JSON decoding error: {e}")
         return None
