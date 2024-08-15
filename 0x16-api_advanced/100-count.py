@@ -5,19 +5,7 @@ import requests
 
 
 def count_words(subreddit, word_list, after="", word_count=None):
-    """
-    Recursively retrieves hot post titles from a given subreddit
-    and counts occurrences of specified keywords.
-
-    Args:
-        subreddit (str): The name of the subreddit.
-        word_list (list): List of keywords to count in titles.
-        after (str, optional): Token for pagination. Defaults to "".
-        word_count (dict, optional): Dictionary to store word counts. Defaults to None.
-
-    Returns:
-        None: Prints the sorted count of words.
-    """
+    """Recursively retrieves hot post titles from a given subreddit"""
 
     # Initialize word_count if it's None
     if word_count is None:
