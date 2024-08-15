@@ -29,12 +29,12 @@ def count_words(subreddit, word_list, after="", word_count=None):
 
     # Construct the URL for the subreddit's hot posts in JSON format
     url = f"https://www.reddit.com/r/{subreddit}/hot/.json"
-    
+
     # Define headers for the HTTP request
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
-    
+
     # Define parameters for the request, including pagination and limit
     params = {
         "after": after,
@@ -43,8 +43,9 @@ def count_words(subreddit, word_list, after="", word_count=None):
 
     # Send a GET request to the subreddit's hot posts page
     try:
-        response = requests.get(url, headers=headers, params=params,
-                                allow_redirects=False)
+        response = requests.get(
+            url, headers=headers, params=params, allow_redirects=False
+        )
 
         # Check if the response status code indicates a not-found error (404)
         if response.status_code == 404:
@@ -59,7 +60,10 @@ def count_words(subreddit, word_list, after="", word_count=None):
         after = data.get("after")
 
         # Get the titles of all hot posts
-        titles = [child.get("data", {}).get("title", "").lower() for child in data.get("children", [])]
+        titles = [
+            child.get("data", {}).get("title", "").lower()
+            for child in data.get("children", [])
+        ]
 
         # Count the occurrences of each keyword in the titles
         for title in titles:
@@ -75,14 +79,15 @@ def count_words(subreddit, word_list, after="", word_count=None):
             return count_words(subreddit, word_list, after, word_count)
 
         # Sort the word_count dictionary by count (descending) and then alphabetically by word (ascending)
-        sorted_word_count = sorted(word_count.items(), key=lambda kv: (-kv[1], kv[0]))
+        sorted_word_count = sorted(
+            word_count.items(), key=lambda kv: (-kv[1], kv[0])
+        )
 
         # Print the sorted word counts, skipping words with a count of 0
         for word, count in sorted_word_count:
             if count > 0:
                 print(f"{word}: {count}")
 
-    except requests.exceptions.RequestException as e:
-        # Handle any requests-related errors
+    except requests.exceptions.RequestException:
         return
 
