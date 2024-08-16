@@ -28,15 +28,12 @@ def top_ten(subreddit):
                     print("None")
             else:
                 print("Invalid response format")
-        
         elif response.status_code == 404:
             print("None")
 
         elif response.status_code == 403:
-            print("Error: 403 - Blocked. Check your User-Agent string or IP restrictions.")
-
+            print("Error: 403 - Blocked.")
         else:
             print(f"Error: {response.status_code} - {response.reason}")
-
     except requests.RequestException as e:
         print(f"Request failed: {e}")
