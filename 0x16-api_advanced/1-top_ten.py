@@ -6,15 +6,10 @@ import requests
 
 def top_ten(subreddit):
     """Queries the Reddit API."""
-    url = f'https://www.reddit.com/r/{subreddit}/hot.json?limit=10'
-    headers = {
-        "User-Agent": "python:top_ten_script:v1.0.0 (by /u/JuicesKemishi)"
-    }
-
     try:
         response = requests.get("https://www.reddit.com/r/{}/hot.json?limit=10"
                             .format(subreddit),
-                            headers={"User-Agent": "My-User-Agent"},
+                            headers={"User-Agent": "python:top_ten_script:v1.0.0 (by /u/JuicesKemishi)"},
                             allow_redirects=False)
 
         # Check for successful request
