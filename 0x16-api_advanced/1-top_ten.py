@@ -1,25 +1,15 @@
 #!/usr/bin/python3
-"""
-Queries the Reddit API and prints the titles of the first 10 hot posts listed
-for a given subreddit.
-"""
+"""Queries the Reddit API."""
 
 import requests
 
+
 def top_ten(subreddit):
     """
-    Queries the Reddit API and prints the titles of the first 10 hot posts
-    listed for a given subreddit.
-
-    Args:
-    - subreddit (str): The name of the subreddit (without '/r/').
-
-    Returns:
-    - None: Prints the titles of the posts or "None" if the subreddit is invalid.
-    """
+    Queries the Reddit API."""
     url = f'https://www.reddit.com/r/{subreddit}/hot.json?limit=10'
     headers = {
-        'User-Agent': 'python:reddit_post_printer:v1.0.0 (by /u/Less_Account_9562)'
+            "User-Agent": "Mozilla/5.0"
     }
 
     try:
@@ -46,4 +36,3 @@ def top_ten(subreddit):
 
     except requests.RequestException as e:
         print(f"Request failed: {e}")
-
