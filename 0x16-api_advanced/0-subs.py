@@ -14,8 +14,7 @@ def number_of_subscribers(subreddit):
     # Headers with User-Agent
     headers = {
         "User-Agent": (
-            "python:reddit_subscriber_counter:v1.0.0 "
-            "(by /u/Less_Account_9562)"
+            "Mozilla/5.0"
         )
     }
 
