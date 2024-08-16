@@ -12,7 +12,10 @@ def top_ten(subreddit):
     }
 
     try:
-        response = requests.get(url, headers=headers, allow_redirects=False)
+        response = requests.get("https://www.reddit.com/r/{}/hot.json?limit=10"
+                            .format(subreddit),
+                            headers={"User-Agent": "My-User-Agent"},
+                            allow_redirects=False)
 
         # Check for successful request
         if response.status_code == 200:
