@@ -5,31 +5,35 @@ import requests
 
 
 def top_ten(subreddit):
-    """
-    Queries the Reddit API."""
+    """Queries the Reddit API."""
     url = f'https://www.reddit.com/r/{subreddit}/hot.json?limit=10'
     headers = {
-            "User-Agent": "Mozilla/5.0"
+        "User-Agent": "python:top_ten_script:v1.0.0 (by /u/JuicesKemishi)"
     }
 
     try:
         response = requests.get(url, headers=headers, allow_redirects=False)
 
+        # Check for successful request
         if response.status_code == 200:
-            data = response.json()
-            posts = data.get('data', {}).get('children', [])
+            # Ensure the response content type is JSON
+            if response.headers.get('Content-Type') == 'application/json':
+                data = response.json()
+                posts = data.get('data', {}).get('children', [])
 
-            if posts:
-                for post in posts:
-                    print(post.get('data', {}).get('title', ''))
+                if posts:
+                    for post in posts:
+                        print(post.get('data', {}).get('title', ''))
+                else:
+                    print("None")
             else:
-                print("None")
-
+                print("Invalid response format")
+        
         elif response.status_code == 404:
             print("None")
 
         elif response.status_code == 403:
-            print("Error: 403 - Blocked")
+            print("Error: 403 - Blocked. Check your User-Agent string or IP restrictions.")
 
         else:
             print(f"Error: {response.status_code} - {response.reason}")
