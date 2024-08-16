@@ -5,40 +5,18 @@ import requests
 
 
 def number_of_subscribers(subreddit):
-    """Queries the Reddit API."""
-    # Construct the URL for the subreddit's about.json
-    url = (
-        f"https://www.reddit.com/r/{subreddit}/about.json"
-    )
+    """Returns the number of subscribers for a subreddit."""
 
-    # Headers with User-Agent
+    url = f"https://oauth.reddit.com/r/{subreddit}/about.json"
     headers = {
-        "User-Agent": (
-            "Mozilla/5.0"
-        )
+        "User-Agent": "Mozilla/5.0"
     }
 
     try:
-        # Send GET request to the URL
-        response = requests.get(
-            url, headers=headers, allow_redirects=False
-        )
+        response = requests.get(url, headers=headers, allow_redirects=False)
+        response.raise_for_status()
 
-        # Check if the request was successful (status code 200)
-        if response.status_code == 200:
-            # Parse JSON response
-            data = response.json()
-            # Extract number of subscribers
-            subscribers = data['data']['subscribers']
-            return subscribers
-        elif response.status_code == 404:
-            # Subreddit not found
-            return 0
-        else:
-            # Handle other errors
-            print(f"Error: {response.status_code} - {response.reason}")
-            return 0
-
-    except requests.RequestException as e:
-        print(f"Request failed: {e}")
+        data = response.json()
+        return data['data']['subscribers']
+    except requests.exceptions.RequestException:
         return 0
